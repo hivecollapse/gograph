@@ -15,6 +15,11 @@ clean:
 snapshot: | clean _snapshot
 
 # Build a release
+.PHONY: patch
+patch:
+	./versiontag --force patch
+
+# Build a release
 .PHONY: release
 release: | clean _release
 
@@ -32,3 +37,9 @@ _release:
 run:
 	go run main.go
 
+.PHONY: versiontag
+versiontag:
+	curl -L https://raw.githubusercontent.com/franiglesias/versiontag/master/versiontag \
+	-o ./versiontag \
+	&& chmod +x ./versiontag \
+	&& ./versiontag help
