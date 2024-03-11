@@ -1,0 +1,91 @@
+# A name for the flow, can be anything
+name: Star wars
+
+# Define a graphql endpoint to execute the query
+endpoints:
+  # You can give a name to the endpoint, which can be useful if you have multiple
+  # endpoints in the same file
+  - name: starwars
+    schema: "*.graphql"
+    url: https://swapi-graphql.netlify.app/.netlify/functions/index
+    # Note: Most field values are treated as go template so they can also be dynamic
+    # For example you could get the url from the environment variable URL:
+    # See internal/template.go for the list of extra function available.
+    #
+    # url: |
+    #    {{ env "URL" "https://swapi-graphql.netlify.app/.netlify/functions/index" }}
+
+# The list of step to perform, each step represent a graphql operations
+steps:
+  # A name for the step, can be anything
+  - name: Get the list of launches
+    #
+    # You can specify the name of the endpoint to use if you have more than one,
+    # if not specified the first one is used
+    # endpoint: starwars
+
+    # The name of the query as per the graphql schema
+    query: allFilms
+
+    # It is possible to use `queries` and provide a list of queries, in which case
+    # they will all be executed sequentially with the same input and validated against the
+    # same results.
+    #
+    # queries:
+    #   - allFilms
+    #   - allPeople
+    #   - allPlanets
+    #   - allSpecies
+    #
+    #
+    # You can add additional header which can be useful for API that
+    # requires an Authorization token
+    # headers:
+    #   Authorization: "Bearer {{ .State.TOKEN }}"
+
+    # Depth at which to generate the query (default 3)
+    depth: 1
+
+    # Handling of the result
+    result:
+      # Extract values and and validate them
+      values:
+        # The name under which this value will be stored in the State object
+        - name: FILM_ID
+          # The path to the value in json path
+          path: $.data.allFilms.films[0].id
+          # A regexp validator for the value
+          match: ^[A-Za-z0-9=]+$
+          # You can alternatively use an exact match
+          # exact: "ZmlsbXM6MQ=="
+
+  - name: Get the same film by the ID of the previous step
+    query: film
+
+    # Specific value for the input, in json format, with go template to retrieve the
+    #   value previously saved from the State object
+    input: |
+      {
+        "id": "{{ .State.FILM_ID }}"
+      }
+    result:
+      values:
+        # Check that the value retrieved is identical to the one saved previously
+        - path: $.data.film.id
+          exact: "{{ .State.FILM_ID }}"
+
+  # This query expect a failure as the input is malformed
+  - name: Get film fails without id
+    query: film
+    input: |
+      {
+        "id": ""
+      }
+    result:
+      # Indicate that a graphql error is expected. If there are no error this step
+      # will be considered in error
+      error: true
+      values:
+        # Check that the answer contains the error we expect
+        - path: $.errors[0].message
+          match: ^No valid ID extracted from

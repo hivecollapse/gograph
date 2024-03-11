@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"gograph/internal/log"
 	"gograph/internal/schema"
 
@@ -25,7 +24,7 @@ var genCmd = &cobra.Command{
 		}
 		operationName := args[0]
 
-		log.Println("gen called with operation", operationName)
+		log.Verboseln("gen called with operation", operationName)
 
 		userSchema, err := schema.LoadSchemaFromGlob(SchemaPath)
 		if err != nil {
@@ -38,14 +37,12 @@ var genCmd = &cobra.Command{
 			log.Fatalln("operation not found")
 		}
 
-		log.Println("operation:", operation.String())
-
 		queryString := operation.QueryString(&schema.QuerySelectorOptions{
 			IgnoreUnderscored: true,
 			MaxDepth:          uint8(depth),
 		})
 
-		fmt.Println(queryString.Text)
+		log.Outln(queryString.Text)
 
 		if validate {
 			err = userSchema.Validate(queryString.Text)
@@ -68,6 +65,6 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	genCmd.Flags().BoolVarP(&validate, "validate", "v", false, "Validate the generated query")
-	genCmd.Flags().IntVarP(&depth, "depth", "d", 3, "Depth for query generation")
+	genCmd.Flags().BoolVarP(&validate, "validate", "", false, "Validate the generated query")
+	genCmd.Flags().IntVarP(&depth, "level", "l", 3, "Depth for query generation")
 }

@@ -86,11 +86,14 @@ func (t *Type) Dump() string {
 func (t *Type) Members() []FieldDefinition {
 	// There must be a better way but i didn't find it
 	name := t.Name()
+
 	idx := slices.IndexFunc(t.schema.ast.ObjectTypeDefinitions, func(v ast.ObjectTypeDefinition) bool {
 		return t.schema.Name(&v.Name) == name
 	})
 
-	if idx > 0 {
+	log.Debugf("Found object type definition for %v at index %v", name, idx)
+
+	if idx >= 0 {
 		slice := []FieldDefinition{}
 
 		// Found an object definition
@@ -631,6 +634,220 @@ type Schema struct {
 	ast              *ast.Document
 }
 
+func (s *Schema) Dump() {
+	s.Normalize()
+
+	ast := s.ast
+
+	fmt.Println("# Types")
+	for ref, _ := range ast.Types {
+		t := Type{schema: s, ref: ref}
+		fmt.Println("-", t.Name(), t.Dump())
+	}
+
+	fmt.Println("# RootNodes")
+	for _, inf := range ast.RootNodes {
+		fmt.Println(inf.NameString(ast), " -->", inf)
+	}
+
+	// fmt.Println("SchemaDefinitions")
+	// for _, inf := range ast.SchemaDefinitions {
+	// 	fmt.Println(inf., " -->", inf)
+	// }
+
+	// fmt.Println("SchemaExtensions")
+	// for _, inf := range ast.SchemaExtensions {
+	// 	fmt.Println(s.Name(&inf.), " -->", inf)
+	// }
+
+	fmt.Println("# RootOperationTypeDefinitions")
+	for _, inf := range ast.RootOperationTypeDefinitions {
+
+		fmt.Println(s.Name(&inf.NamedType.Name), " -->", inf)
+	}
+
+	fmt.Println("# Directives")
+	for _, inf := range ast.Directives {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# Arguments")
+	for _, inf := range ast.Arguments {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# ObjectTypeDefinitions")
+	for _, inf := range ast.ObjectTypeDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# ObjectTypeExtensions")
+	for _, inf := range ast.ObjectTypeExtensions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# FieldDefinitions")
+	for _, inf := range ast.FieldDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# Types")
+	for _, inf := range ast.Types {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# InputValueDefinitions")
+	for _, inf := range ast.InputValueDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# InputObjectTypeDefinitions")
+	for _, inf := range ast.InputObjectTypeDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# InputObjectTypeExtensions")
+	for _, inf := range ast.InputObjectTypeExtensions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# ScalarTypeDefinitions")
+	for _, inf := range ast.ScalarTypeDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# ScalarTypeExtensions")
+	for _, inf := range ast.ScalarTypeExtensions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# InterfaceTypeDefinitions")
+	for _, inf := range ast.InterfaceTypeDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# InterfaceTypeExtensions")
+	for _, inf := range ast.InterfaceTypeExtensions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# UnionTypeDefinitions")
+	for _, inf := range ast.UnionTypeDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# UnionTypeExtensions")
+	for _, inf := range ast.UnionTypeExtensions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# EnumTypeDefinitions")
+	for _, inf := range ast.EnumTypeDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# EnumTypeExtensions")
+	for _, inf := range ast.EnumTypeExtensions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# EnumValueDefinitions")
+	for _, inf := range ast.EnumValueDefinitions {
+		fmt.Println(s.Name(&inf.EnumValue), " -->", inf)
+	}
+
+	fmt.Println("# DirectiveDefinitions")
+	for _, inf := range ast.DirectiveDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# Values")
+	for _, inf := range ast.Values {
+		fmt.Println(inf.Kind.String(), " -->", inf)
+	}
+
+	// fmt.Println("ListValues")
+	// for _, inf := range ast.ListValues {
+	// 	fmt.Println(s.Name(&inf.), " -->", inf)
+	// }
+
+	fmt.Println("# VariableValues")
+	for _, inf := range ast.VariableValues {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# StringValues")
+	for _, inf := range ast.StringValues {
+		fmt.Println(s.Name(&inf.Content), " -->", inf)
+	}
+
+	fmt.Println("# IntValues")
+	for _, inf := range ast.IntValues {
+		fmt.Println(s.Name(&inf.Raw), " -->", inf)
+	}
+
+	fmt.Println("# FloatValues")
+	for _, inf := range ast.FloatValues {
+		fmt.Println(s.Name(&inf.Raw), " -->", inf)
+	}
+
+	fmt.Println("# EnumValues")
+	for _, inf := range ast.EnumValues {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# ObjectFields")
+	for _, inf := range ast.ObjectFields {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	// fmt.Println("ObjectValues")
+	// for _, inf := range ast.ObjectValues {
+	// 	fmt.Println(s.Name(&inf.), " -->", inf)
+	// }
+
+	fmt.Println("# Selections")
+	for _, inf := range ast.Selections {
+		fmt.Println(inf.Kind.String(), " -->", inf)
+	}
+
+	// fmt.Println("SelectionSets")
+	// for _, inf := range ast.SelectionSets {
+	// 	fmt.Println(inf., " -->", inf)
+	// }
+
+	fmt.Println("# Fields")
+	for _, inf := range ast.Fields {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	// fmt.Println("InlineFragments")
+	// for _, inf := range ast.InlineFragments {
+	// 	fmt.Println(s.Name(&inf.), " -->", inf)
+	// }
+
+	// fmt.Println("FragmentSpreads")
+	// for _, inf := range ast.FragmentSpreads {
+	// 	fmt.Println(s.Name(&inf.Name), " -->", inf)
+	// }
+
+	fmt.Println("# OperationDefinitions")
+	for _, inf := range ast.OperationDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+	fmt.Println("# VariableDefinitions")
+	for _, inf := range ast.VariableDefinitions {
+		fmt.Println(inf.Type, " -->", inf)
+	}
+
+	fmt.Println("# FragmentDefinitions")
+	for _, inf := range ast.FragmentDefinitions {
+		fmt.Println(s.Name(&inf.Name), " -->", inf)
+	}
+
+}
+
 func (s *Schema) MergeWithBase() {
 	if !s.merged_with_base {
 		log.Debugf("Merging schema with base")
@@ -877,7 +1094,7 @@ func LoadSchemaFromGlob(pattern string) (*Schema, error) {
 
 	userSchema.Normalize()
 
-	log.Verbose("Schema has", len(userSchema.ListAllOperations(true)), "operations")
+	log.Verboseln("Schema has", len(userSchema.ListAllOperations(true)), "operations")
 
 	if report.HasErrors() {
 		panic(report.Error())
