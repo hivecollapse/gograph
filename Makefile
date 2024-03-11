@@ -26,12 +26,12 @@ release: | clean _release
 # Actual snapshot target
 .PHONY: _snapshot
 _snapshot:
-	goreleaser --snapshot --skip-publish --rm-dist --fail-fast
+	goreleaser --snapshot --skip-publish --clean --fail-fast
 
 # Actual release target
 .PHONY: _release
 _release:
-	goreleaser release --rm-dist
+	goreleaser release --auto-snapshot --clean
 
 .PHONY: run
 run:
