@@ -1,5 +1,3 @@
-include ./.env
-
 .PHONY: build
 build:
 	go build -o bin/gograph main.go
@@ -31,7 +29,7 @@ _snapshot:
 # Actual release target
 .PHONY: _release
 _release:
-	goreleaser release --auto-snapshot --clean
+	goreleaser release --clean
 
 .PHONY: run
 run:

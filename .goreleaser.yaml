@@ -9,7 +9,7 @@
 version: 1
 
 env_files:
-  github_token: ./.github_token
+  github_token: .github_token
 
 before:
   hooks:
