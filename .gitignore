@@ -19,6 +19,7 @@
 
 # Secrets
 .env
+.github_token
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
